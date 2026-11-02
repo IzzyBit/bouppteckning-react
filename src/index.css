@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@theme { --color-brand: #426db1; --color-brand-soft: #eaf1fd; }
+:root { font-family: "Segoe UI", system-ui, sans-serif; color: #1d2939; background: #f5f7fb; }
+/* docx-preview renders third-party document markup with its own styles. */
+.word-preview .docx-wrapper { background: transparent !important; padding: 0 !important; }
+.word-preview section.docx { margin: 0 auto 20px !important; box-shadow: 0 4px 16px #26334536; }
+.word-preview { overflow: auto; }
