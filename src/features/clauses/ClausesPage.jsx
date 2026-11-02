@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 import { clauseDefs } from '../../config/options.js';
 import { useCase } from '../../context/CaseContext.jsx';
@@ -166,28 +165,4 @@ export default function ClausesPage() {
       </Section>
     </Page>
   );
-=======
-import { clauseDefs } from '../../config/options.js';
-import { useCase } from '../../context/CaseContext.jsx';
-import { Page, Section, InlineList } from '../../components/ui/Controls.jsx';
-export default function ClausesPage() {
-    const { data, set } = useCase();
-    return <Page title="Att-satser för bouppteckning" description="Endast markerade att-satser kommer med i Word-dokumentet.">
-        <Section title="Standardupplysningar">
-            <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-5">{clauseDefs.map(c =>
-                <label key={c} className="flex items-start gap-3 text-sm">
-                    <input type="checkbox" className="mt-1 accent-blue-700" checked={
-                        data.standardClauses.includes(c)} 
-                        onChange={ 
-                            e => set('standardClauses', 
-                            e.target.checked ? [...data.standardClauses, c] : data.standardClauses.filter(x => x !== c))
-                        } />{c}
-                </label>)}
-            </div>
-        </Section>
-        <Section title="Egna att-satser">
-            <InlineList path="customClauses" />
-        </Section>
-    </Page>;
->>>>>>> 7e794b9d2a2ddf3ad1a206a45ff016911fee9628
 }
