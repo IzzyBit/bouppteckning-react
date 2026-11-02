@@ -1,4 +1,4 @@
-# Bouppteckning — React, Vite och Tailwind
+# Bouppteckning v3 — React, Vite och Tailwind
 
 A modular version of the original Swedish bouppteckning single-page HTML application.
 

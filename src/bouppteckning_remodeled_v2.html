@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boutredningsärende – Bouppteckning</title>
+  <style>
+    :root {
+      --blue: #5f8ddd;
+      --blue-dark: #3f6fbf;
+      --blue-soft: #dce8fb;
+      --panel: #eef2f8;
+      --border: #aeb7c3;
+      --text: #1d2430;
+      --muted: #5d6876;
+      --input: #fffde5;
+      --green: #2d914c;
+      --red: #b54a4a;
+      --bg: #f6f7f9;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font: 13px/1.35 "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    .toolbar {
+      height: 46px;
+      background: linear-gradient(#fbfbfb, #eceff3);
+      border-bottom: 1px solid #aeb7c3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px
+    }
+
+    .tool-btn {
+      height: 32px;
+      border: 1px solid #aab3bf;
+      background: linear-gradient(#fff, #e9edf2);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 11px;
+      font-size: 12px;
+      color: #1e2b3a
+    }
+
+    .tool-btn:hover {
+      border-color: #7f91a8;
+      background: #fff
+    }
+
+    .tool-btn .tool-icon {
+      font-size: 16px
+    }
+
+    .tool-spacer {
+      width: 8px;
+      border-left: 1px solid #bfc5cc;
+      height: 29px;
+      margin: 0 3px
+    }
+
+    .app {
+      height: calc(100vh - 46px);
+      display: grid;
+      grid-template-columns: 278px 1fr;
+      min-width: 900px
+    }
+
+    .sidebar {
+      border-right: 1px solid #9eabbc;
+      background: #f5f6f8;
+      min-height: 0;
+      overflow: hidden
+    }
+
+    .side-title,
+    .workspace-title,
+    .advisor-title {
+      height: 24px;
+      background: linear-gradient(90deg, #5c87d2, #7da5e9);
+      color: white;
+      font-weight: 600;
+      padding: 4px 7px
+    }
+
+    .shortcuts {
+      overflow: auto;
+      border-bottom: 1px solid #b7c0cc
+    }
+
+    .shortcuts .side-title {
+      position: sticky;
+      top: 0
+    }
+
+    .shortcut {
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #27384f
+    }
+
+    .shortcut::before {
+      content: "◆";
+      font-size: 9px;
+      color: #6d8ebf
+    }
+
+    .shortcut.disabled {
+      color: #aaa
+    }
+
+    .tree-panel {
+      height: 100%;
+      overflow: auto
+    }
+
+    .tree {
+      padding: 5px 5px 12px;
+      user-select: none
+    }
+
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 5px;
+      border-radius: 2px;
+      cursor: pointer;
+      white-space: nowrap
+    }
+
+    .tree-row:hover {
+      background: #e2e9f4
+    }
+
+    .tree-row.active {
+      background: #cdddf6;
+      color: #173d77;
+      font-weight: 600
+    }
+
+    .tree-row .twisty {
+      width: 13px;
+      text-align: center
+    }
+
+    .tree-row .icon {
+      width: 16px;
+      text-align: center
+    }
+
+    .tree-row.level1 {
+      padding-left: 17px
+    }
+
+    .tree-row.level2 {
+      padding-left: 34px
+    }
+
+    .tree-row.level3 {
+      padding-left: 51px
+    }
+
+    .help-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 29px 1fr
+    }
+
+    .help-tabs {
+      display: flex;
+      border-bottom: 1px solid #b7c0cc;
+      background: #eef1f5
+    }
+
+    .help-tabs button {
+      flex: 1;
+      border: 0;
+      border-right: 1px solid #c5ccd5;
+      background: #eef1f5;
+      padding: 5px 2px;
+      font-size: 11px
+    }
+
+    .help-tabs button.active {
+      background: white;
+      font-weight: 600
+    }
+
+    .help-body {
+      overflow: auto;
+      background: white;
+      padding: 12px
+    }
+
+    .help-body h2 {
+      font-size: 18px;
+      margin: 0 0 7px
+    }
+
+    .help-body h3 {
+      font-size: 13px;
+      margin: 16px 0 5px
+    }
+
+    .help-body p {
+      margin: 6px 0
+    }
+
+    .help-link {
+      display: block;
+      background: #e4edf9;
+      margin: 4px 0;
+      padding: 4px 7px;
+      color: #285d9f;
+      text-decoration: none
+    }
+
+    .workspace {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: 24px 1fr;
+      background: white
+    }
+
+    .workspace-title {
+      font-size: 12px
+    }
+
+    .content-wrap {
+      overflow: auto;
+      padding: 25px 36px 35px;
+      background: #fff
+    }
+
+    .advisor {
+      background: #fff;
+      border-top: 1px solid #8fa2bc
+    }
+
+    .advisor-title {
+      height: 19px;
+      padding: 2px 7px;
+      font-size: 11px
+    }
+
+    .advisor-text {
+      font-size: 11px;
+      padding: 3px 8px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .page {
+      display: none;
+      max-width: 1120px
+    }
+
+    .page.active {
+      display: block
+    }
+
+    .page h1 {
+      font-size: 17px;
+      margin: 0 0 18px;
+      color: #111
+    }
+
+    .page h2 {
+      font-size: 14px;
+      margin: 22px 0 9px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #d0d6de
+    }
+
+    .page h3 {
+      font-size: 13px;
+      margin: 14px 0 8px
+    }
+
+    .section-note {
+      color: #5c6673;
+      margin: -7px 0 16px
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(130px, 1fr));
+      gap: 8px 12px;
+      align-items: end
+    }
+
+    .form-grid.two {
+      grid-template-columns: repeat(2, minmax(160px, 1fr))
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .field.span2 {
+      grid-column: span 2
+    }
+
+    .field.span3 {
+      grid-column: span 3
+    }
+
+    .field.span4 {
+      grid-column: 1/-1
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      border: 1px solid #9fa9b5;
+      background: white;
+      padding: 5px 6px;
+      min-height: 28px
+    }
+
+    .field input.focus,
+    .field select.focus {
+      background: var(--input)
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 62px
+    }
+
+    .checkline {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 5px 0;
+      flex-wrap: wrap
+    }
+
+    .checkline input {
+      margin: 0
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 28px
+    }
+
+    .split-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px
+    }
+
+    .softbox {
+      background: #e9f0fb;
+      border: 1px solid #c3d1e6;
+      padding: 12px
+    }
+
+    .softbox h3 {
+      margin-top: 0
+    }
+
+    .btn {
+      border: 1px solid #8998aa;
+      background: linear-gradient(#fff, #e8ebef);
+      padding: 5px 11px;
+      border-radius: 2px;
+      color: #1e2b3a
+    }
+
+    .btn:hover {
+      background: #fff
+    }
+
+    .btn.primary {
+      background: linear-gradient(#5f8ddd, #4778c8);
+      color: white;
+      border-color: #386bb5
+    }
+
+    .btn.green {
+      background: linear-gradient(#3ba660, #2c8b4c);
+      color: white;
+      border-color: #257840
+    }
+
+    .btn.danger {
+      background: linear-gradient(#c66565, #ad4747);
+      color: white;
+      border-color: #993d3d
+    }
+
+    .btn.small {
+      padding: 3px 8px;
+      font-size: 11px
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+      margin: 10px 0;
+      flex-wrap: wrap
+    }
+
+    .actions.end {
+      justify-content: flex-end
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #aeb8c4;
+      background: white
+    }
+
+    .data-table th {
+      background: #f0f2f5;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 6px;
+      border-right: 1px solid #c4cad2;
+      border-bottom: 1px solid #9fa9b5
+    }
+
+    .data-table td {
+      padding: 5px 6px;
+      border-right: 1px solid #d0d5db;
+      border-bottom: 1px solid #e3e6ea;
+      vertical-align: middle
+    }
+
+    .data-table tbody tr {
+      cursor: pointer
+    }
+
+    .data-table tbody tr:hover {
+      background: #edf4ff
+    }
+
+    .data-table tbody tr.selected {
+      background: #1f75bd;
+      color: white
+    }
+
+    .data-table input,
+    .data-table select {
+      width: 100%;
+      border: 1px solid #b0b8c3;
+      padding: 3px;
+      background: white
+    }
+
+    .table-wrap {
+      border: 1px solid #bac3ce;
+      max-height: 320px;
+      overflow: auto
+    }
+
+    .money {
+      text-align: right;
+      font-variant-numeric: tabular-nums
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 140px repeat(3, 110px) 25px 140px repeat(3, 110px);
+      gap: 7px 8px;
+      align-items: center
+    }
+
+    .summary-grid .head {
+      font-weight: 700;
+      text-align: center
+    }
+
+    .summary-grid input {
+      width: 100%;
+      border: 1px solid #aeb6c0;
+      background: #f7f7f7;
+      padding: 4px;
+      text-align: right
+    }
+
+    .summary-grid .label {
+      font-weight: 600
+    }
+
+    .summary-total {
+      font-weight: 700
+    }
+
+    .calc-box {
+      margin-top: 20px;
+      max-width: 780px
+    }
+
+    .calc-row {
+      display: grid;
+      grid-template-columns: 1fr 130px 130px;
+      gap: 10px;
+      margin: 6px 0;
+      align-items: center
+    }
+
+    .calc-row input {
+      padding: 5px;
+      border: 1px solid #aeb6c0;
+      text-align: right;
+      background: #f8f8f8
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 30, 45, .38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50
+    }
+
+    .modal-backdrop.open {
+      display: flex
+    }
+
+    .modal {
+      width: min(980px, 92vw);
+      max-height: 90vh;
+      overflow: auto;
+      background: #f7f8fa;
+      border: 1px solid #77869a;
+      box-shadow: 0 12px 45px rgba(0, 0, 0, .35)
+    }
+
+    .modal-title {
+      padding: 7px 10px;
+      background: linear-gradient(#fff, #e9edf2);
+      border-bottom: 1px solid #9daaba;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between
+    }
+
+    .modal-body {
+      padding: 14px
+    }
+
+    .modal-footer {
+      padding: 10px 14px;
+      border-top: 1px solid #c2c8d0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #f2f3f5
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 18px
+    }
+
+    .heir-type-grid {
+      display: grid;
+      grid-template-columns: 170px repeat(5, 28px) 1fr;
+      gap: 4px;
+      align-items: center;
+      margin-top: 12px
+    }
+
+    .heir-type-grid .hdr {
+      font-weight: 700;
+      font-size: 11px;
+      text-align: center
+    }
+
+    .family-box {
+      border: 1px solid #b6bec8;
+      background: white;
+      min-height: 110px;
+      padding: 6px;
+      overflow: auto
+    }
+
+    .family-item {
+      padding: 3px 5px
+    }
+
+    .family-item.active {
+      background: #1f75bd;
+      color: white
+    }
+
+    .clause {
+      display: grid;
+      grid-template-columns: 21px 1fr;
+      gap: 8px;
+      align-items: start;
+      margin: 8px 0
+    }
+
+    .clause input[type="checkbox"] {
+      margin-top: 2px
+    }
+
+    .clause input[type="text"] {
+      border: 1px solid #aaa;
+      padding: 3px 5px;
+      min-width: 100px
+    }
+
+    .clause textarea {
+      width: 100%
+    }
+
+    .total-strip {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      font-weight: 600
+    }
+
+    .total-strip output {
+      min-width: 120px;
+      border: 1px solid #aab3be;
+      background: #f4f4f4;
+      padding: 4px 7px;
+      text-align: right
+    }
+
+    .word-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px
+    }
+
+    .word-status {
+      padding: 7px 9px;
+      background: #eef4fb;
+      border: 1px solid #c4d5e9;
+      margin-bottom: 12px
+    }
+
+    .word-preview-shell {
+      background: #9da1a8;
+      padding: 25px;
+      min-height: 500px;
+      overflow: auto
+    }
+
+    .word-preview-shell .docx-wrapper {
+      background: transparent !important;
+      padding: 0 !important
+    }
+
+    .word-preview-shell section.docx {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+      margin: 0 auto 22px !important
+    }
+
+    .notice {
+      padding: 9px 11px;
+      border: 1px solid #d9c27a;
+      background: #fff9dd;
+      margin: 10px 0
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #e8eff9;
+      color: #315b92;
+      font-size: 11px
+    }
+
+    .empty {
+      padding: 24px;
+      text-align: center;
+      color: #707a86
+    }
+
+    @media(max-width:1100px) {
+      .app {
+        grid-template-columns: 230px 1fr
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(140px, 1fr))
+      }
+
+      .field.span3,
+      .field.span4 {
+        grid-column: 1/-1
+      }
+
+      .split-card {
+        grid-template-columns: 1fr
+      }
+
+      .summary-grid {
+        grid-template-columns: 130px repeat(3, 95px)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toolbar">
+    <button class="tool-btn" title="Nytt ärende" onclick="newCase()"><span class="tool-icon">＋</span>Nytt</button>
+    <button class="tool-btn" title="Spara utkast" onclick="saveSession()"><span
+        class="tool-icon">💾</span>Spara</button>
+    <div class="tool-spacer"></div>
+    <button class="tool-btn" title="Föregående sida" onclick="navigateTree(-1)"><span
+        class="tool-icon">←</span>Föregående</button>
+    <button class="tool-btn" title="Nästa sida" onclick="navigateTree(1)">Nästa<span class="tool-icon">→</span></button>
+    <div class="tool-spacer"></div>
+    <button class="tool-btn" title="Word-dokument" onclick="openPage('word')"><span
+        class="tool-icon">W</span>Word-dokument</button>
+  </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="tree-panel">
+        <div class="side-title">Dokumentöversikt</div>
+        <div class="tree" id="navTree"></div>
+      </div>
+    </aside>
+    <main class="workspace">
+      <div class="workspace-title" id="workspaceTitle">BOU01 Boutredningsärende</div>
+      <div class="content-wrap">
+        <section class="page active" data-page="person">
+          <h1>Personuppgifter avlåtare/efterlevande</h1>
+          <div class="split-card">
+            <div>
+              <h2>Personuppgifter avlåtare/efterlevande</h2>
+              <div class="form-grid two">
+                <div class="field"><label>Avliden datum</label><input class="focus" id="deathDate" type="date"></div>
+                <div class="field"><label>Personnr</label><input id="personnummer" placeholder="ÅÅÅÅMMDD-XXXX"></div>
+                <div class="field"><label>Födelseår</label><input id="birthYear" type="number"></div>
+                <div class="field"><label>Kön</label>
+                  <div class="radio-group"><label><input type="radio" name="gender" value="Kvinna">
+                      Kvinna</label><label><input type="radio" name="gender" value="Man"> Man</label></div>
+                </div>
+                <div class="field span2"><label>Förnamn</label><input id="firstName"></div>
+                <div class="field span2"><label>Efternamn</label><input id="lastName"></div>
+                <div class="field span2"><label>Postutdelningsadress</label><input id="address"></div>
+                <div class="field"><label>Postnr</label><input id="postalCode"></div>
+                <div class="field"><label>Ort</label><input id="city"></div>
+                <div class="field"><label>Land</label><input id="country" value="Sverige"></div>
+                <div class="field"><label>Hemvist</label><input id="domicile"></div>
+                <div class="field"><label>Medborgarskap</label><input id="citizenship"></div>
+                <div class="field"><label>Civilstånd</label><select id="civilStatus" class="focus">
+                    <option value="">Välj</option>
+                    <option>gift</option>
+                    <option>ogift</option>
+                    <option>änka/änkling</option>
+                    <option>skild</option>
+                    <option>registrerad partner</option>
+                    <option>efterlevande partner</option>
+                  </select></div>
+                <div class="field span2"><label>Gift datum</label><input id="marriageDate" type="date"></div>
+              </div>
+              <div class="checkline"><label><input type="checkbox" id="cohabitant"> Sambo</label><label><input
+                    type="radio" name="cohabClaim" value="begär bodelning"> som begär bodelning</label><label><input
+                    type="radio" name="cohabClaim" value="inte begär bodelning"> som inte begär bodelning</label></div>
+              <div class="checkline"><label><input type="checkbox" id="multipleDeceased"> Ytterligare avlåtare finns
+                  förutom den nu avlidne</label></div>
+            </div>
+            <div>
+              <h2>Personuppgifter make/a, registrerad partner eller sambo</h2>
+              <div class="form-grid two">
+                <div class="field"><label>Personnr</label><input id="partnerPersonnummer"></div>
+                <div class="field"><label>Kön</label>
+                  <div class="radio-group"><label><input type="radio" name="partnerGender" value="Kvinna">
+                      Kvinna</label><label><input type="radio" name="partnerGender" value="Man"> Man</label></div>
+                </div>
+                <div class="field span2"><label>Förnamn</label><input id="partnerFirstName"></div>
+                <div class="field span2"><label>Efternamn</label><input id="partnerLastName"></div>
+                <div class="field span2"><label>Postutdelningsadress</label><input id="partnerAddress"></div>
+                <div class="field"><label>Postnr</label><input id="partnerPostalCode"></div>
+                <div class="field"><label>Ort</label><input id="partnerCity"></div>
+                <div class="field"><label>Land</label><input id="partnerCountry" value="Sverige"></div>
+              </div>
+              <h3>Typ av arvtagare</h3>
+              <div class="checkline"><label><input type="checkbox" class="partner-heir-type" value="Legal arvinge (D)">
+                  Legal arvinge (D)</label><label><input type="checkbox" class="partner-heir-type"
+                    value="Universell testamentstagare (U)"> Universell testamentstagare (U)</label><label><input
+                    type="checkbox" class="partner-heir-type" value="Legatarie (L)"> Legatarie (L)</label><label><input
+                    type="checkbox" class="partner-heir-type" value="Efterarvinge (E)"> Efterarvinge (E)</label></div>
+              <div class="checkline"><label><input type="checkbox" id="partnerDeceased"> Avliden</label><label>Datum
+                  <input id="partnerDeathDate" type="date"></label></div>
+              <div class="softbox">
+                <div class="checkline"><label><input type="checkbox" id="partnerCalled"> Kallas till förrättning</label>
+                </div>
+                <div class="form-grid two">
+                  <div class="field"><label>Närvaro</label><select id="partnerPresence">
+                      <option value="">Välj</option>
+                      <option>ej närvarande</option>
+                      <option>personligen</option>
+                      <option>via förmyndare</option>
+                      <option>via god man</option>
+                      <option>via ombud</option>
+                      <option>via fullmakt</option>
+                      <option>via ställföreträdare</option>
+                      <option>via särskilt förordnad förmyndare</option>
+                    </select></div>
+                  <div class="field"><label>Bilaga</label><input id="partnerAttachment"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="heirs">
+          <h1>Arvtagare</h1>
+          <div class="actions"><button class="btn" onclick="openHeirModal()">Lägg till person</button><button
+              class="btn" onclick="editSelectedHeir()">Ändra person</button><button class="btn"
+              onclick="deleteSelectedHeir()">Ta bort person</button></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Namn</th>
+                  <th>Personnr</th>
+                  <th>Gatuadress</th>
+                  <th>Postadress</th>
+                  <th>Typ av arvtagare</th>
+                  <th>Relation</th>
+                  <th>Avl.</th>
+                </tr>
+              </thead>
+              <tbody id="heirRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="page" data-page="meeting">
+          <h1>Uppgifter om förrättning</h1>
+          <div class="form-grid">
+            <div class="field span2"><label>Förrättningsort</label><input class="focus" id="meetingLocation"></div>
+            <div class="field"><label>Förrättningsdag</label><input id="meetingDate" type="date"></div>
+            <div class="field"><label>Ärendenummer</label><input id="caseNumber"></div>
+            <div class="field span2"><label>Bouppgivare</label><input id="estateDeclarant"
+                placeholder="Namn på den som uppger boet"></div>
+          </div>
+          <h2>Förrättningsmän</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nr</th>
+                  <th>Namn</th>
+                  <th>Titel / företag</th>
+                  <th>Adress</th>
+                  <th>Postnr</th>
+                  <th>Ort</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="officialRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn" onclick="addOfficial()">Lägg till förrättningsman</button></div>
+          <h2>Uppvisade handlingar för bouppteckning</h2>
+          <div class="clause"><input type="checkbox" id="docPrevEstate">
+            <div>bouppteckning efter tidigare avliden <input type="text" id="docPrevEstateName" placeholder="namn">
+              upprättad <input type="date" id="docPrevEstateDate"></div>
+          </div>
+          <div class="clause"><input type="checkbox" id="docWill">
+            <div>testamente har uppvisats / åberopats <input type="text" id="docWillNote"
+                placeholder="beskrivning eller datum"></div>
+          </div>
+          <div class="clause"><input type="checkbox" id="docPower">
+            <div>fullmakt eller annan behörighetshandling har uppvisats <input type="text" id="docPowerNote"
+                placeholder="anteckning"></div>
+          </div>
+          <div class="clause"><input type="checkbox" id="docPrenup">
+            <div>äktenskapsförord upprättat <input type="date" id="prenupDate"> och registrerat <input type="date"
+                id="prenupRegistered"></div>
+          </div>
+          <h3>Egna uppvisade handlingar</h3>
+          <div id="customDocs"></div><button class="btn small" onclick="addCustomDoc()">+ Lägg till handling</button>
+        </section>
+
+        <section class="page" data-page="clauses">
+          <h1>Att-satser för bouppteckning</h1>
+          <p class="section-note">Endast markerade att-satser kommer med i Word-dokumentet.</p>
+          <div id="standardClauses"></div>
+          <h2>Egna att-satser</h2>
+          <div id="customClauses"></div><button class="btn small" onclick="addCustomClause()">+ Lägg till egen
+            att-sats</button>
+        </section>
+
+        <section class="page" data-page="assets">
+          <h1>Den avlidnes tillgångar <span class="status-pill" id="assetDatePill"></span></h1>
+          <div class="checkline"><label><input type="checkbox" id="assetsSeparatePrenup"> All den avlidnes tillgångar
+              ska vara enskild enligt äktenskapsförord</label><label><input type="checkbox" id="assetsSeparateWill"> All
+              den avlidnes tillgångar ska vara enskild enligt gåva eller testamente</label></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:27%">Beteckning</th>
+                  <th>Egendom</th>
+                  <th>Andel</th>
+                  <th>Kurs</th>
+                  <th>Värde</th>
+                  <th>Typ</th>
+                  <th>Bilaga</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="assetRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn" onclick="addAssetRow()">Lägg till tillgång</button></div>
+          <div class="total-strip">Summa <output id="assetTotal">0,00 kr</output></div>
+          <h2>Andel i oskiftat dödsbo</h2>
+          <div class="form-grid two">
+            <div class="field"><label>Andel i oskiftat dödsbo efter</label><input id="undividedAfter"></div>
+            <div class="field"><label>Andel (%)</label><input id="undividedShare" type="number" step="0.01"></div>
+          </div>
+          <div class="table-wrap" style="margin-top:8px">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Benämning</th>
+                  <th>Belopp</th>
+                  <th>Avgår</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="undividedRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn small" onclick="addUndividedRow()">+ Lägg till post</button></div>
+        </section>
+
+        <section class="page" data-page="debts">
+          <h1>Den avlidnes skulder <span class="status-pill" id="debtDatePill"></span></h1>
+          <div class="checkline"><label><input type="checkbox" id="debtsSeparatePrenup"> All den avlidnes skulder ska
+              vara enskilda enligt äktenskapsförord</label><label><input type="checkbox" id="debtsSeparateWill"> All den
+              avlidnes skulder ska vara enskilda enligt gåva eller testamente</label></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:30%">Benämning</th>
+                  <th>Skuld</th>
+                  <th>Belopp</th>
+                  <th>Ber. ränta</th>
+                  <th>Typ/rubrik</th>
+                  <th>Bilaga</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="debtRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn" onclick="addDebtRow()">Lägg till skuld</button></div>
+          <div class="total-strip">Summa <output id="debtTotal">0,00 kr</output></div>
+          <h2>Avgående poster</h2>
+          <p class="section-note">Endast de rader som har ett belopp skrivs ut i bouppteckningen.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Benämning</th>
+                  <th>Belopp</th>
+                  <th>Typ</th>
+                </tr>
+              </thead>
+              <tbody id="expenseRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="page" data-page="survivor">
+          <h1>Efterlevande makes egendom</h1>
+          <h2>Efterlevande makens tillgångar</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:27%">Beteckning</th>
+                  <th>Egendom</th>
+                  <th>Andel</th>
+                  <th>Kurs</th>
+                  <th>Värde</th>
+                  <th>Typ</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="survivorAssetRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn" onclick="addSurvivorAssetRow()">Lägg till tillgång</button></div>
+          <h2>Efterlevande makens skulder</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:30%">Benämning</th>
+                  <th>Skuld</th>
+                  <th>Belopp</th>
+                  <th>Ber. ränta</th>
+                  <th>Typ/rubrik</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="survivorDebtRows"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="btn" onclick="addSurvivorDebtRow()">Lägg till skuld</button></div>
+        </section>
+
+        <section class="page" data-page="summary">
+          <h1>Sammanställning bobehållning</h1>
+          <div id="summaryArea"></div>
+        </section>
+
+        <section class="page" data-page="word">
+          <h1>Word-dokument</h1>
+          <div class="notice">Dokumentet följer upplägget i den angivna bouppteckningsmallen: personuppgifter och
+            arvingar, handlingar och att-satser, tillgångar, skulder, sammanställning samt underskrifter.</div>
+          <div class="word-toolbar"><button class="btn primary" onclick="generateWordDocument()">Skapa / uppdatera
+              bouppteckning</button><button class="btn green" id="downloadWordButton" disabled
+              onclick="downloadWordDocument()">Ladda ner Word</button></div>
+          <div class="word-status" id="wordStatus">Dokumentet är ännu inte genererat.</div>
+          <div class="word-preview-shell" id="wordPreview">
+            <div class="empty">Word-förhandsvisningen visas här.</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="heirModal">
+    <div class="modal">
+      <div class="modal-title"><span>Personuppgifter dödsbodelägare, legatarier och övriga</span><button
+          class="modal-close" onclick="closeHeirModal()">×</button></div>
+      <div class="modal-body">
+        <div class="split-card">
+          <div class="softbox">
+            <h3>Personuppgifter</h3>
+            <div class="form-grid two">
+              <div class="field span2"><label>Förnamn</label><input id="hmFirstName" class="focus"></div>
+              <div class="field span2"><label>Efternamn</label><input id="hmLastName"></div>
+              <div class="field"><label>Personnr</label><input id="hmPersonnummer"></div>
+              <div class="field"><label>Kön</label>
+                <div class="radio-group"><label><input type="radio" name="hmGender" value="Man">
+                    Man</label><label><input type="radio" name="hmGender" value="Kvinna"> Kvinna</label><label><input
+                      type="radio" name="hmGender" value="Ej fysisk person"> Ej fysisk person</label></div>
+              </div>
+              <div class="field span2"><label>Postutdelningsadress</label><input id="hmAddress"></div>
+              <div class="field"><label>Postnr</label><input id="hmPostalCode"></div>
+              <div class="field"><label>Ort</label><input id="hmCity"></div>
+              <div class="field"><label>Land</label><input id="hmCountry" value="Sverige"></div>
+            </div>
+          </div>
+          <div class="softbox">
+            <h3>Kallelse / närvaro</h3>
+            <div class="checkline"><label><input type="checkbox" id="hmCalled"> Kallas till
+                förrättning</label><label><input type="checkbox" id="hmProof"> Kallelsebevis bifogas</label></div>
+            <div class="form-grid two">
+              <div class="field"><label>Närvaro</label><select id="hmPresence">
+                  <option value="">Välj</option>
+                  <option>ej närvarande</option>
+                  <option>personligen</option>
+                  <option>via förmyndare</option>
+                  <option>via god man</option>
+                  <option>via ombud</option>
+                  <option>via fullmakt</option>
+                  <option>via ställföreträdare</option>
+                  <option>via särskilt förordnad förmyndare</option>
+                </select></div>
+              <div class="field"><label>Bilaga</label><input id="hmAttachment"></div>
+              <div class="field"><label>Företrädare förnamn</label><input id="hmRepFirst"></div>
+              <div class="field"><label>Företrädare efternamn</label><input id="hmRepLast"></div>
+              <div class="field span2"><label>Företrädare adress</label><input id="hmRepAddress"></div>
+            </div>
+          </div>
+        </div>
+        <div class="checkline"><label><input type="checkbox" id="hmDeceased"> Personen är avliden</label></div>
+        <div class="checkline"><label><input type="checkbox" id="hmNotEstateParty"> Personen är inte längre
+            dödsbodelägare på grund av:</label><label><input type="checkbox" class="hm-reason"
+              value="godkännande av testamente"> godkännande av testamente</label><label><input type="checkbox"
+              class="hm-reason" value="arvsavstående"> arvsavstående</label><label><input type="checkbox"
+              class="hm-reason" value="annat"> annat</label></div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:10px">
+          <div>
+            <h3>Välj arvtagare, typ av arvtagare och relation</h3>
+            <div class="heir-type-grid">
+              <div class="hdr">Arvtagare</div>
+              <div class="hdr">D</div>
+              <div class="hdr">U</div>
+              <div class="hdr">E</div>
+              <div class="hdr">T</div>
+              <div class="hdr">L</div>
+              <div class="hdr">Relation till arvtagaren</div>
+              <div id="hmNamePreview">Ny person</div><label><input type="checkbox" class="hm-type"
+                  value="D"></label><label><input type="checkbox" class="hm-type" value="U"></label><label><input
+                  type="checkbox" class="hm-type" value="E"></label><label><input type="checkbox" class="hm-type"
+                  value="T"></label><label><input type="checkbox" class="hm-type" value="L"></label><select
+                id="hmRelation">
+                <option value="">Välj</option>
+                <option>barn</option>
+                <option>särkullbarn</option>
+                <option>syskon</option>
+                <option>halvsyskon</option>
+                <option>fader</option>
+                <option>moder</option>
+                <option>faster</option>
+                <option>farbror</option>
+                <option>mormor</option>
+                <option>morfar</option>
+                <option>moster</option>
+                <option>morbror</option>
+                <option>tidigare makan</option>
+                <option>tidigare maken</option>
+                <option>övriga</option>
+                <option>barnbarn</option>
+                <option>särkullbarnbarn</option>
+                <option>syskonbarn</option>
+                <option>halvsyskonbarn</option>
+              </select>
+            </div>
+            <div class="muted" style="margin-top:8px">D = Legal arvinge · U = Universell testamentstagare · E =
+              Efterarvinge · T = Testamentarisk efterarvinge · L = Legatarie</div>
+          </div>
+          <div>
+            <h3>Familjehierarki</h3>
+            <div class="family-box" id="familyHierarchy">
+              <div class="family-item active">Ny person</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeHeirModal()">Avbryt</button><button
+          class="btn primary" onclick="saveHeirFromModal()">OK</button></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle, Footer, PageNumber, PageBreak } from "https://cdn.jsdelivr.net/npm/docx@9.5.1/+esm";
+    import { renderAsync } from "https://cdn.jsdelivr.net/npm/docx-preview@0.4.1/+esm";
+
+    const $ = id => document.getElementById(id);
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+    const money = n => (Number(n) || 0).toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kr";
+    const num = v => Number(String(v ?? "").replace(/\s/g, "").replace(",", ".")) || 0;
+    const val = id => $(id)?.value ?? "";
+    const checked = id => !!$(id)?.checked;
+    const esc = s => String(s ?? "").replace(/[&<>'"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[c]));
+
+    const navItems = [
+      { id: "person", label: "BOU01 Boutredningsärende", level: 0, icon: "💾", title: "BOU01 Boutredningsärende - Personuppgifter" },
+      { id: "heirs", label: "Arvtagare", level: 1, icon: "👥", title: "BOU01 Boutredningsärende - Arvtagare" },
+      { id: "meeting", label: "BOU03 Bouppteckning", level: 1, icon: "📄", title: "BOU03 Bouppteckning - Förrättningsuppgifter" },
+      { id: "meeting", label: "Förrättningsmän / handlingar", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Förrättning" },
+      { id: "clauses", label: "Att-satser", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Att-satser" },
+      { id: "assets", label: "Den avlidnes tillgångar", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Den avlidnes tillgångar" },
+      { id: "debts", label: "Den avlidnes skulder", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Den avlidnes skulder" },
+      { id: "survivor", label: "Efterlevandes egendom", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Efterlevandes egendom" },
+      { id: "summary", label: "Sammanställning bodelning", level: 2, icon: "▧", title: "BOU03 Bouppteckning - Sammanställning bobehållning" },
+      { id: "word", label: "Ordbehandlare / Word", level: 2, icon: "📝", title: "BOU03 Bouppteckning - Word-dokument" }
+    ];
+    let currentPage = "person", selectedHeirIndex = null, editingHeirIndex = null, generatedWordBlob = null;
+    let heirs = [], officials = [{ firstName: "", lastName: "", title: "", address: "", postalCode: "", city: "" }, { firstName: "", lastName: "", title: "", address: "", postalCode: "", city: "" }];
+    let assets = [], debts = [], survivorAssets = [], survivorDebts = [], undivided = [], customDocs = [], customClauses = [];
+    const expenses = [{ name: "Begravningskostnader", value: 0, type: "giftorättsgods" }, { name: "Avtal till gravsten", value: 0, type: "giftorättsgods" }, { name: "Bouppteckningskostnader", value: 0, type: "giftorättsgods" }];
+
+    const helpTexts = {
+      person: { title: "Arbetsgång - Boutredning", body: "Här registrerar du grunduppgifterna om den avlidne och eventuell efterlevande. Civilstånd, hemvist och medborgarskap används senare i bouppteckningen." },
+      heirs: { title: "Uppgifter om dödsbodelägare, legatarier och övriga", body: "Lägg in en person för varje dödsbodelägare, arvinge, efterarvinge, testamentstagare eller legatarie. Ange relation, arvtagartyp samt om personen kallas till förrättningen." },
+      meeting: { title: "Bouppteckning", body: "Ange förrättningsort, förrättningsdag och förrättningsmän. Markera de handlingar som uppvisats vid förrättningen." },
+      clauses: { title: "Att-satser", body: "Markera de upplysningar som ska tas med i bouppteckningen. Egna att-satser kan läggas till när standardalternativen inte räcker." },
+      assets: { title: "Den avlidnes tillgångar", body: "Lägg till den avlidnes tillgångar per dödsdagen och ange egendomsslag, andel, värde och om posten är giftorättsgods eller enskild egendom." },
+      debts: { title: "Den avlidnes skulder", body: "Registrera skulder samt avgående poster. Beloppen används i sammanställningen och i Word-dokumentet." },
+      survivor: { title: "Efterlevandes egendom", body: "Om bodelning ska göras kan efterlevande makes tillgångar och skulder registreras här." },
+      summary: { title: "Sammanställning bobehållning", body: "Här sammanställs tillgångar och skulder efter egendomstyp. Bodelningsandel beräknas automatiskt på registrerade giftorättsposter." },
+      word: { title: "Ordbehandlare", body: "Skapa Word-dokumentet när inmatningen är klar. Dokumentet visas här i applikationen och kan därefter laddas ned som .docx." }
+    };
+    const clauseDefs = [
+      "bouppgivaren är den avlidnes närstående och svarade för dödsboets egendom",
+      "samtliga dödsbodelägare och efterarvingar blev kallade till förrättningen",
+      "närvaro vid förrättning skall antecknas i bouppteckningen",
+      "testamente föreligger",
+      "följande försäkringar fanns på den avlidnes liv med förmånstagarförordnande",
+      "inga försäkringar med förmånstagarförordnande förelåg på den avlidnes liv",
+      "efterlevande maken begär jämkning enligt ÄktB 12:2",
+      "sambon begärt bodelning enligt sambolagen",
+      "sambon inte begärt bodelning enligt sambolagen",
+      "den avlidne lämnat följande gåvor/förskott på arv",
+      "bröstarvingar har framställt laglottsanspråk",
+      "testamentsföreskrift har uppmärksammats",
+      "ytterst till bouppteckningen har uppgivits av dödsbodelägarna"
+    ];
+
+    function renderTree() {
+      $("navTree").innerHTML = navItems.map((n, i) => `<div class="tree-row level${Math.min(n.level, 3)} ${n.id === currentPage && !n.disabled ? 'active' : ''} ${n.disabled ? 'muted' : ''}" data-index="${i}" ${n.disabled ? '' : 'onclick="openPage(\'' + n.id + '\')"'}><span class="twisty">${n.level < 2 ? '⌄' : ''}</span><span class="icon">${n.icon}</span><span>${n.label}</span></div>`).join("");
+    }
+    function openPage(id) { if (!qs(`.page[data-page="${id}"]`)) return; currentPage = id; qsa(".page").forEach(p => p.classList.toggle("active", p.dataset.page === id)); renderTree(); const item = navItems.find(n => n.id === id && !n.disabled); $("workspaceTitle").textContent = item?.title || item?.label || "Bouppteckning"; if (id === "summary") renderSummary(); if (id === "assets" || id === "debts") { $("assetDatePill").textContent = val("deathDate") || "dödsdag"; $("debtDatePill").textContent = val("deathDate") || "dödsdag"; } }
+    function navigateTree(dir) { const ids = [...new Set(navItems.filter(n => !n.disabled && qs(`.page[data-page="${n.id}"]`)).map(n => n.id))]; let i = ids.indexOf(currentPage); i = Math.max(0, Math.min(ids.length - 1, i + dir)); openPage(ids[i]); }
+
+    function renderHeirs() { $("heirRows").innerHTML = heirs.length ? heirs.map((h, i) => `<tr class="${i === selectedHeirIndex ? 'selected' : ''}" onclick="selectHeir(${i})" ondblclick="editHeir(${i})"><td>${esc(h.firstName)} ${esc(h.lastName)}</td><td>${esc(h.personnummer)}</td><td>${esc(h.address)}</td><td>${esc([h.postalCode, h.city].filter(Boolean).join(' '))}</td><td>${esc(h.types.join(','))}</td><td>${esc(h.relation)}</td><td>${h.deceased ? 'Ja' : ''}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">Inga arvtagare registrerade.</td></tr>`; renderFamily(); }
+    function selectHeir(i) { selectedHeirIndex = i; renderHeirs(); }
+    function openHeirModal(h = null, index = null) { editingHeirIndex = index; const d = h || {};["FirstName", "LastName", "Personnummer", "Address", "PostalCode", "City", "Country", "Attachment", "RepFirst", "RepLast", "RepAddress"].forEach(k => $("hm" + k).value = d[k.charAt(0).toLowerCase() + k.slice(1)] || (k === "Country" ? "Sverige" : "")); qsa('input[name="hmGender"]').forEach(r => r.checked = r.value === (d.gender || "")); $("hmCalled").checked = !!d.called; $("hmProof").checked = !!d.proof; $("hmPresence").value = d.presence || ""; $("hmDeceased").checked = !!d.deceased; $("hmNotEstateParty").checked = !!d.notEstateParty; qsa(".hm-reason").forEach(c => c.checked = (d.reasons || []).includes(c.value)); qsa(".hm-type").forEach(c => c.checked = (d.types || []).includes(c.value)); $("hmRelation").value = d.relation || ""; updateHeirPreview(); $("heirModal").classList.add("open"); }
+    function closeHeirModal() { $("heirModal").classList.remove("open"); }
+    function updateHeirPreview() { $("hmNamePreview").textContent = [val("hmFirstName"), val("hmLastName")].filter(Boolean).join(" ") || "Ny person"; }
+    $("hmFirstName").addEventListener("input", updateHeirPreview); $("hmLastName").addEventListener("input", updateHeirPreview);
+    function saveHeirFromModal() { const d = { firstName: val("hmFirstName"), lastName: val("hmLastName"), personnummer: val("hmPersonnummer"), gender: qs('input[name="hmGender"]:checked')?.value || "", address: val("hmAddress"), postalCode: val("hmPostalCode"), city: val("hmCity"), country: val("hmCountry"), called: checked("hmCalled"), proof: checked("hmProof"), presence: val("hmPresence"), attachment: val("hmAttachment"), repFirst: val("hmRepFirst"), repLast: val("hmRepLast"), repAddress: val("hmRepAddress"), deceased: checked("hmDeceased"), notEstateParty: checked("hmNotEstateParty"), reasons: qsa(".hm-reason:checked").map(x => x.value), types: qsa(".hm-type:checked").map(x => x.value), relation: val("hmRelation") }; if (editingHeirIndex === null) heirs.push(d); else heirs[editingHeirIndex] = d; selectedHeirIndex = editingHeirIndex === null ? heirs.length - 1 : editingHeirIndex; closeHeirModal(); renderHeirs(); }
+    function editHeir(i) { openHeirModal(heirs[i], i) } function editSelectedHeir() { if (selectedHeirIndex === null) return alert("Markera en person först."); editHeir(selectedHeirIndex) } function deleteSelectedHeir() { if (selectedHeirIndex === null) return alert("Markera en person först."); heirs.splice(selectedHeirIndex, 1); selectedHeirIndex = null; renderHeirs(); }
+    function renderFamily() { $("familyHierarchy").innerHTML = heirs.length ? heirs.map((h, i) => `<div class="family-item ${i === selectedHeirIndex ? 'active' : ''}">${esc(h.firstName + ' ' + h.lastName)}${h.relation ? ' – ' + esc(h.relation) : ''}</div>`).join("") : `<div class="family-item active">${esc(val("hmFirstName") + ' ' + val("hmLastName")) || 'Ny person'}</div>`; }
+
+    function renderOfficials() { $("officialRows").innerHTML = officials.map((o, i) => `<tr><td>${i + 1}</td><td><input value="${esc(o.firstName + ' ' + o.lastName)}" onchange="setOfficialName(${i},this.value)"></td><td><input value="${esc(o.title || '')}" onchange="officials[${i}].title=this.value"></td><td><input value="${esc(o.address)}" onchange="officials[${i}].address=this.value"></td><td><input value="${esc(o.postalCode)}" onchange="officials[${i}].postalCode=this.value"></td><td><input value="${esc(o.city)}" onchange="officials[${i}].city=this.value"></td><td><button class="btn small danger" onclick="removeOfficial(${i})">Ta bort</button></td></tr>`).join("") }
+    function setOfficialName(i, s) { const p = s.trim().split(/\s+/); officials[i].firstName = p.shift() || ""; officials[i].lastName = p.join(" "); } function addOfficial() { officials.push({ firstName: "", lastName: "", title: "", address: "", postalCode: "", city: "" }); renderOfficials() } function removeOfficial(i) { officials.splice(i, 1); renderOfficials() }
+    function renderCustomDocs() { $("customDocs").innerHTML = customDocs.map((d, i) => `<div class="clause"><input type="checkbox" ${d.enabled ? 'checked' : ''} onchange="customDocs[${i}].enabled=this.checked"><div><textarea onchange="customDocs[${i}].text=this.value">${esc(d.text)}</textarea><button class="btn small danger" onclick="customDocs.splice(${i},1);renderCustomDocs()">Ta bort</button></div></div>`).join("") } function addCustomDoc() { customDocs.push({ enabled: true, text: "" }); renderCustomDocs() }
+    function renderClauses() { $("standardClauses").innerHTML = clauseDefs.map((c, i) => `<div class="clause"><input type="checkbox" class="standard-clause" value="${esc(c)}"><div>${esc(c)}</div></div>`).join(""); renderCustomClauses() } function renderCustomClauses() { $("customClauses").innerHTML = customClauses.map((c, i) => `<div class="clause"><input type="checkbox" ${c.enabled ? 'checked' : ''} onchange="customClauses[${i}].enabled=this.checked"><div><textarea onchange="customClauses[${i}].text=this.value">${esc(c.text)}</textarea><button class="btn small danger" onclick="customClauses.splice(${i},1);renderCustomClauses()">Ta bort</button></div></div>`).join("") } function addCustomClause() { customClauses.push({ enabled: true, text: "" }); renderCustomClauses() }
+
+    const assetKinds = ["Fast egendom", "Bostadsrätt", "Konto", "Aktier, obligationer/värdepapper", "Fonder", "Lösöre", "Försäkringar", "Övrigt"];
+    const propertyTypes = ["giftorättsgods", "enskild eg. ä-förord", "enskild eg. gåva m.m.", "sambogemensam", "anges inte"];
+    const debtKinds = ["Inteckningslån/skuld", "Personlig skuld", "Övrig skuld"];
+    function assetRow(a, i, arrName) { const attachment = arrName === 'assets' ? `<td><input value="${esc(a.attachment || '')}" onchange="assets[${i}].attachment=this.value"></td>` : ""; return `<tr><td><input value="${esc(a.name)}" onchange="${arrName}[${i}].name=this.value"></td><td><select onchange="${arrName}[${i}].kind=this.value">${assetKinds.map(x => `<option ${x === a.kind ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input value="${esc(a.share)}" onchange="${arrName}[${i}].share=this.value"></td><td><input class="money" type="number" step="0.01" value="${a.rate || ''}" onchange="${arrName}[${i}].rate=num(this.value);recalculate()"></td><td><input class="money" type="number" step="0.01" value="${a.value || ''}" onchange="${arrName}[${i}].value=num(this.value);recalculate()"></td><td><select onchange="${arrName}[${i}].type=this.value;recalculate()">${propertyTypes.map(x => `<option ${x === a.type ? 'selected' : ''}>${x}</option>`).join('')}</select></td>${attachment}<td><button class="btn small danger" onclick="${arrName}.splice(${i},1);renderAllFinancial()">×</button></td></tr>` }
+    function debtRow(d, i, arrName) { const attachment = arrName === 'debts' ? `<td><input value="${esc(d.attachment || '')}" onchange="debts[${i}].attachment=this.value"></td>` : ""; return `<tr><td><input value="${esc(d.name)}" onchange="${arrName}[${i}].name=this.value"></td><td><select onchange="${arrName}[${i}].kind=this.value">${debtKinds.map(x => `<option ${x === d.kind ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input class="money" type="number" step="0.01" value="${d.value || ''}" onchange="${arrName}[${i}].value=num(this.value);recalculate()"></td><td><input class="money" type="number" step="0.01" value="${d.interest || ''}" onchange="${arrName}[${i}].interest=num(this.value);recalculate()"></td><td><select onchange="${arrName}[${i}].type=this.value;recalculate()">${propertyTypes.map(x => `<option ${x === d.type ? 'selected' : ''}>${x}</option>`).join('')}</select></td>${attachment}<td><button class="btn small danger" onclick="${arrName}.splice(${i},1);renderAllFinancial()">×</button></td></tr>` }
+    function renderAssets() { $("assetRows").innerHTML = assets.length ? assets.map((a, i) => assetRow(a, i, "assets")).join("") : `<tr><td colspan="8" class="empty">Inga tillgångar registrerade.</td></tr>` }
+    function renderDebts() { $("debtRows").innerHTML = debts.length ? debts.map((d, i) => debtRow(d, i, "debts")).join("") : `<tr><td colspan="7" class="empty">Inga skulder registrerade.</td></tr>` }
+    function renderSurvivor() { $("survivorAssetRows").innerHTML = survivorAssets.length ? survivorAssets.map((a, i) => assetRow(a, i, "survivorAssets")).join("") : `<tr><td colspan="7" class="empty">Inga tillgångar registrerade.</td></tr>`; $("survivorDebtRows").innerHTML = survivorDebts.length ? survivorDebts.map((d, i) => debtRow(d, i, "survivorDebts")).join("") : `<tr><td colspan="6" class="empty">Inga skulder registrerade.</td></tr>` }
+    function renderUndivided() { $("undividedRows").innerHTML = undivided.length ? undivided.map((r, i) => `<tr><td><input value="${esc(r.name)}" onchange="undivided[${i}].name=this.value"></td><td><input type="number" value="${r.value || ''}" onchange="undivided[${i}].value=num(this.value);recalculate()"></td><td><input type="number" value="${r.deduction || ''}" onchange="undivided[${i}].deduction=num(this.value);recalculate()"></td><td><button class="btn small danger" onclick="undivided.splice(${i},1);renderAllFinancial()">×</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Ingen andel i oskiftat dödsbo registrerad.</td></tr>` }
+    function renderExpenses() { $("expenseRows").innerHTML = expenses.map((e, i) => `<tr><td>${esc(e.name)}</td><td><input type="number" step="0.01" value="${e.value || ''}" onchange="expenses[${i}].value=num(this.value);recalculate()"></td><td><select onchange="expenses[${i}].type=this.value;recalculate()">${propertyTypes.map(x => `<option ${x === e.type ? 'selected' : ''}>${x}</option>`).join('')}</select></td></tr>`).join("") }
+    function addAssetRow() { assets.push({ name: "", kind: "Fast egendom", share: "", rate: 0, value: 0, type: "giftorättsgods", attachment: "" }); renderAllFinancial() } function addDebtRow() { debts.push({ name: "", kind: "Inteckningslån/skuld", value: 0, interest: 0, type: "giftorättsgods", attachment: "" }); renderAllFinancial() } function addSurvivorAssetRow() { survivorAssets.push({ name: "", kind: "Fast egendom", share: "", rate: 0, value: 0, type: "giftorättsgods" }); renderAllFinancial() } function addSurvivorDebtRow() { survivorDebts.push({ name: "", kind: "Inteckningslån/skuld", value: 0, interest: 0, type: "giftorättsgods" }); renderAllFinancial() } function addUndividedRow() { undivided.push({ name: "", value: 0, deduction: 0 }); renderAllFinancial() }
+    function totals(arr, type) { return arr.filter(x => x.type === type).reduce((s, x) => s + num(x.value) + (x.interest ? num(x.interest) : 0), 0) }
+    function recalculate() { const at = assets.reduce((s, x) => s + num(x.value), 0) + undivided.reduce((s, x) => s + num(x.value) - num(x.deduction), 0); const dt = debts.reduce((s, x) => s + num(x.value) + num(x.interest), 0) + expenses.reduce((s, x) => s + num(x.value), 0); $("assetTotal").textContent = money(at); $("debtTotal").textContent = money(dt); if (currentPage === "summary") renderSummary() }
+    function renderAllFinancial() { renderAssets(); renderDebts(); renderSurvivor(); renderUndivided(); renderExpenses(); recalculate() }
+    function summaryBucket(assetArr, debtArr, type) { const a = totals(assetArr, type), d = totals(debtArr, type); return { a, d, n: a - d } }
+    function renderSummary() {
+      const types = ["giftorättsgods", "enskild eg. ä-förord", "enskild eg. gåva m.m."]; const deceased = types.map(t => summaryBucket(assets, debts, t)); const survivor = types.map(t => summaryBucket(survivorAssets, survivorDebts, t)); const expGift = expenses.filter(e => e.type === "giftorättsgods").reduce((s, e) => s + num(e.value), 0); deceased[0].d += expGift; deceased[0].n -= expGift; const dSum = deceased.reduce((x, b) => ({ a: x.a + b.a, d: x.d + b.d, n: x.n + b.n }), { a: 0, d: 0, n: 0 }); const sSum = survivor.reduce((x, b) => ({ a: x.a + b.a, d: x.d + b.d, n: x.n + b.n }), { a: 0, d: 0, n: 0 }); const joint = Math.max(0, deceased[0].n) + Math.max(0, survivor[0].n), dShare = joint / 2, sShare = joint / 2, distribute = dShare + deceased.slice(1).reduce((s, b) => s + b.n, 0);
+      $("summaryArea").innerHTML = `<div class="summary-grid"><div></div><div class="head">Tillgångar</div><div class="head">Skulder</div><div class="head">Behållning</div><div></div><div></div><div class="head">Tillgångar</div><div class="head">Skulder</div><div class="head">Behållning</div><div class="label">Den avlidne</div><div></div><div></div><div></div><div></div><div class="label">Den efterlevande</div><div></div><div></div><div></div>${types.map((t, i) => `<div>${esc(t)}</div><input readonly value="${money(deceased[i].a)}"><input readonly value="${money(deceased[i].d)}"><input readonly value="${money(deceased[i].n)}"><div></div><div>${esc(t)}</div><input readonly value="${money(survivor[i].a)}"><input readonly value="${money(survivor[i].d)}"><input readonly value="${money(survivor[i].n)}">`).join('')}<div class="summary-total">Summa tillgångar/skulder:</div><input readonly value="${money(dSum.a)}"><input readonly value="${money(dSum.d)}"><input readonly value="${money(dSum.n)}"><div></div><div class="summary-total">Summa tillgångar/skulder:</div><input readonly value="${money(sSum.a)}"><input readonly value="${money(sSum.d)}"><input readonly value="${money(sSum.n)}"></div><div class="calc-box"><h2>Avräkning av bodelningsandel</h2><div class="calc-row"><span>Förs ut till bodelning</span><input readonly value="${money(joint)}"><span></span></div><div class="calc-row"><span>Den avlidnes bodelningsandel</span><input readonly value="${money(dShare)}"><span>Beräknad till 50 %</span></div><div class="calc-row"><span>Den efterlevandes bodelningsandel</span><input readonly value="${money(sShare)}"><span>Beräknad till 50 %</span></div><div class="calc-row"><strong>Att fördela</strong><input readonly value="${money(distribute)}"><span></span></div></div>`;
+    }
+
+    function getData() { return { deceased: { personnummer: val("personnummer"), deathDate: val("deathDate"), birthYear: val("birthYear"), gender: qs('input[name="gender"]:checked')?.value || "", firstName: val("firstName"), lastName: val("lastName"), address: val("address"), postalCode: val("postalCode"), city: val("city"), country: val("country"), domicile: val("domicile"), citizenship: val("citizenship"), civilStatus: val("civilStatus"), marriageDate: val("marriageDate") }, partner: { personnummer: val("partnerPersonnummer"), firstName: val("partnerFirstName"), lastName: val("partnerLastName"), address: val("partnerAddress"), postalCode: val("partnerPostalCode"), city: val("partnerCity"), country: val("partnerCountry"), gender: qs('input[name="partnerGender"]:checked')?.value || "", heirTypes: qsa(".partner-heir-type:checked").map(x => x.value), deceased: checked("partnerDeceased"), deathDate: val("partnerDeathDate"), called: checked("partnerCalled"), presence: val("partnerPresence"), attachment: val("partnerAttachment") }, heirs, meeting: { location: val("meetingLocation"), date: val("meetingDate"), caseNumber: val("caseNumber"), declarant: val("estateDeclarant") }, officials, documents: { prev: checked("docPrevEstate"), prevName: val("docPrevEstateName"), prevDate: val("docPrevEstateDate"), will: checked("docWill"), willNote: val("docWillNote"), power: checked("docPower"), powerNote: val("docPowerNote"), prenup: checked("docPrenup"), prenupDate: val("prenupDate"), prenupRegistered: val("prenupRegistered"), custom: customDocs }, clauses: qsa(".standard-clause:checked").map(x => x.value).concat(customClauses.filter(x => x.enabled && x.text.trim()).map(x => x.text.trim())), assets, debts, expenses, undivided, survivorAssets, survivorDebts, undividedAfter: val("undividedAfter"), undividedShare: val("undividedShare") }; }
+    function sessionObject() { const d = getData(); d.ui = { currentPage }; return d }
+    function saveSession() { sessionStorage.setItem("bouppteckningDraft", JSON.stringify(sessionObject())); alert("Utkastet har sparats för den här webbläsarsessionen.") }
+    function clearSession() { sessionStorage.removeItem("bouppteckningDraft"); alert("Sessionsutkastet har rensats.") }
+    function newCase() { if (!confirm("Starta ett nytt ärende? Osparade uppgifter i formuläret rensas.")) return; sessionStorage.removeItem("bouppteckningDraft"); location.reload() }
+
+    const noBorders = { top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" } };
+    const docMoney = n => (Number(n) || 0).toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fullName = p => [p?.firstName, p?.lastName].filter(Boolean).join(" ").trim();
+    const addressLine = p => [p?.postalCode, p?.city].filter(Boolean).join(" ").trim();
+    function wp(text = "", opts = {}) { return new Paragraph({ alignment: opts.alignment, spacing: { before: opts.before ?? 0, after: opts.after ?? 90, line: opts.line ?? 276 }, keepNext: !!opts.keepNext, children: [new TextRun({ text: String(text ?? ""), bold: !!opts.bold, size: opts.size ?? 22 })] }); }
+    function wtitle(t) { return wp(t, { bold: true, size: 52, after: 560, keepNext: true }) }
+    function wh2(t) { return wp(t, { bold: true, size: 32, before: 300, after: 180, keepNext: true }) }
+    function wh3(t) { return wp(t, { bold: true, size: 24, before: 230, after: 120, keepNext: true }) }
+    function wh4(t) { return wp(t, { bold: true, size: 22, before: 140, after: 80, keepNext: true }) }
+    function wblank(h = 100) { return new Paragraph({ spacing: { after: h }, children: [new TextRun("")] }) }
+    function pageBreak() { return new Paragraph({ children: [new PageBreak()] }) }
+    function wcell(content, { bold = false, width = 50, align, after = 40, size = 22 } = {}) { const para = content instanceof Paragraph ? content : new Paragraph({ alignment: align, spacing: { after }, children: [new TextRun({ text: String(content ?? ""), bold, size })] }); return new TableCell({ width: { size: width, type: WidthType.PERCENTAGE }, borders: noBorders, margins: { top: 0, bottom: 0, left: 0, right: 70 }, children: [para] }); }
+    function borderlessTable(rows, widths = [50, 50]) { return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: rows.map(r => new TableRow({ children: r.map((x, i) => wcell(x, { width: widths[i] ?? (100 / rows[0].length) })) })) }); }
+    function labelValueTable(rows) { return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: rows.map(([label, value]) => new TableRow({ children: [wcell(label, { width: 37 }), wcell(new Paragraph({ spacing: { after: 30 }, children: [new TextRun({ text: String(value || ""), bold: true, size: 22 })] }), { width: 63 })] })) }); }
+    function personDetailParagraph(p, includeAddress = true) { const runs = []; const add = (text, first = false) => { if (!text) return; runs.push(new TextRun({ text: String(text), size: 22, break: first ? 0 : 1 })); }; add(fullName(p), true); add(p?.personnummer); if (includeAddress) { add(p?.address); add(addressLine(p)); } return new Paragraph({ spacing: { after: 70, line: 276 }, children: runs.length ? runs : [new TextRun({ text: "", size: 22 })] }); }
+    function amountRow(label, value, { bold = false, indent = false } = {}) { return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: [new TableRow({ children: [wcell(new Paragraph({ indent: indent ? { left: 240 } : undefined, spacing: { after: 35 }, children: [new TextRun({ text: String(label || ""), bold, size: 22 })] }), { width: 78 }), wcell(new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { after: 35 }, children: [new TextRun({ text: docMoney(value), bold, size: 22 })] }), { width: 22 })] })] }); }
+    function partnerCodes(types = []) { return types.map(x => (x.match(/\(([DUETL])\)/) || [])[1]).filter(Boolean) }
+    function allEstatePeople(d) { const people = d.heirs.map(x => ({ ...x, isPartner: false })); if (fullName(d.partner)) { const codes = partnerCodes(d.partner.heirTypes); if (codes.length) people.unshift({ ...d.partner, types: codes, relation: "make/maka", isPartner: true }); } return people; }
+    function roleName(p, index = 0) { if (p.isPartner) { if (p.gender === "Kvinna") return "Makan"; if (p.gender === "Man") return "Maken"; return "Efterlevande make/partner"; } const r = (p.relation || "").toLowerCase(); const g = p.gender || ""; let role = ""; if (r === "barn" || r === "särkullbarn") { role = g === "Kvinna" ? "Dottern" : g === "Man" ? "Sonen" : "Barnet"; if (r === "särkullbarn") role = "Särkulls" + role.toLowerCase(); } else if (r === "barnbarn" || r === "särkullbarnbarn") role = g === "Kvinna" ? "Dotterdottern/barnbarnet" : g === "Man" ? "Sonen/barnbarnet" : "Barnbarnet"; else if (r === "syskon") role = g === "Kvinna" ? "Systern" : g === "Man" ? "Brodern" : "Syskonet"; else role = r ? r.charAt(0).toUpperCase() + r.slice(1) : "Arvtagaren"; return `${index + 1}. ${role}`; }
+    function relationGroupHeading(p, d) { const r = (p.relation || "").toLowerCase(); const partner = fullName(d.partner); if (r === "barn" && partner) return `Barn gemensamma med ${partner}`; if (r === "särkullbarn") return "Särkullbarn"; if (r === "barnbarn") return "Barnbarn"; if (r === "syskon") return "Syskon"; return ""; }
+    function heirBlock(d, code, sectionTitle, subTitle) { const people = allEstatePeople(d).filter(p => (p.types || []).includes(code)); if (!people.length) return []; const out = []; if (sectionTitle) out.push(wh2(sectionTitle)); if (subTitle) out.push(wh3(subTitle)); let lastGroup = ""; let count = 0; for (const p of people) { const group = relationGroupHeading(p, d); if (group && group !== lastGroup) { out.push(wh4(group)); lastGroup = group; } const left = roleName(p, count); if (!p.isPartner) count++; out.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: [new TableRow({ children: [wcell(left, { width: 40 }), wcell(personDetailParagraph(p, true), { width: 60 })] })] })); } return out; }
+    function shownDocuments(d) { const docs = []; if (d.documents.prev) docs.push(["en", `bouppteckning efter tidigare avliden ${d.documents.prevName || ""}${d.documents.prevDate ? ` upprättad ${d.documents.prevDate}` : ""},`]); if (d.documents.will) docs.push(["ett", `testamente ${d.documents.willNote ? d.documents.willNote : "upprättat av den avlidne"},`]); if (d.documents.power) docs.push(["en", `fullmakt eller behörighetshandling${d.documents.powerNote ? `: ${d.documents.powerNote}` : ""},`]); if (d.documents.prenup) docs.push(["ett", `äktenskapsförord${d.documents.prenupDate ? ` upprättat ${d.documents.prenupDate}` : ""}${d.documents.prenupRegistered ? ` och registrerat ${d.documents.prenupRegistered}` : ""},`]); for (const x of d.documents.custom.filter(x => x.enabled && x.text.trim())) docs.push(["", x.text.trim()]); return docs; }
+    function statementRow(prefix, text) { return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: [new TableRow({ children: [wcell(prefix, { bold: true, width: 8 }), wcell(text, { width: 92 })] })] }); }
+    function presenceRows(d) { const people = []; if (fullName(d.partner) && (d.partner.called || d.partner.presence)) people.push(d.partner); people.push(...d.heirs.filter(x => x.called || x.presence)); return people; }
+    const assetKindOrder = ["Fast egendom", "Bostadsrätt", "Konto", "Aktier, obligationer/värdepapper", "Fonder", "Lösöre", "Försäkringar", "Övrigt"];
+    const assetKindHeading = { "Fast egendom": "Fast egendom", "Bostadsrätt": "Bostadsrätt", "Konto": "Konton", "Aktier, obligationer/värdepapper": "Aktier, obligationer, värdepapper", "Fonder": "Fonder", "Lösöre": "Lösöre", "Försäkringar": "Försäkringar som ingår i boets behållning", "Övrigt": "Övriga tillgångar" };
+    const propertyHeading = { "giftorättsgods": "Giftorättsgods", "enskild eg. ä-förord": "Enskild egendom enligt äktenskapsförord", "enskild eg. gåva m.m.": "Enskild egendom enligt gåva/testamente", "sambogemensam": "Samboegendom", "anges inte": "Övriga tillgångar" };
+    function assetsDocument(ownerTitle, list) {
+      const out = [wh2(ownerTitle)]; if (!list.length) { out.push(wp("Inga tillgångar registrerade.")); return out; } const typeOrder = ["giftorättsgods", "enskild eg. ä-förord", "enskild eg. gåva m.m.", "sambogemensam", "anges inte"]; for (const type of typeOrder) {
+        const subset = list.filter(x => x.type === type); if (!subset.length) continue; out.push(wh2(propertyHeading[type] || type)); for (const kind of assetKindOrder) { const rows = subset.filter(x => x.kind === kind); if (!rows.length) continue; out.push(wh3(assetKindHeading[kind] || kind)); if (kind === "Aktier, obligationer/värdepapper" || kind === "Fonder") out.push(borderlessTable([[new Paragraph({ children: [new TextRun({ text: "Benämning", bold: true, size: 22 })] }), new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Antal", bold: true, size: 22 })] }), new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Kurs", bold: true, size: 22 })] }), ""]], [55, 13, 14, 18])); for (const a of rows) { if (kind === "Aktier, obligationer/värdepapper" || kind === "Fonder") out.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: [new TableRow({ children: [wcell(a.name, { width: 55 }), wcell(a.share || "", { width: 13, align: AlignmentType.CENTER }), wcell(a.rate ? docMoney(a.rate) : "", { width: 14, align: AlignmentType.CENTER }), wcell(new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: docMoney(a.value), size: 22 })] }), { width: 18 })] })] })); else out.push(amountRow(a.name || assetKindHeading[kind] || kind, a.value)); } }
+        const sum = subset.reduce((n, x) => n + num(x.value), 0); out.push(wblank(20)); out.push(amountRow(`Summa ${propertyHeading[type]?.toLowerCase() || type}`, sum, { bold: true }));
+      } return out;
+    }
+    function debtHeading(kind) { return kind === "Inteckningslån/skuld" ? "Intecknings- och andra låneskulder" : "Övriga skulder" }
+    function debtsDocument(ownerTitle, list, includeExpenses = false) {
+      const out = [wh2(ownerTitle)]; if (!list.length && !includeExpenses) { out.push(wp("Inga skulder registrerade.")); return out; } for (const kind of ["Inteckningslån/skuld", "Personlig skuld", "Övrig skuld"]) { const rows = list.filter(x => x.kind === kind); if (!rows.length) continue; out.push(wh3(debtHeading(kind))); for (const d of rows) { out.push(amountRow(d.name || debtHeading(kind), d.value)); if (num(d.interest)) out.push(amountRow("beräknad ränta", d.interest, { indent: true })); } }
+      if (includeExpenses) { const exp = expenses.filter(x => num(x.value) > 0); if (exp.length) { out.push(wh3("Avgående poster")); for (const e of exp) out.push(amountRow(e.name, e.value)); } }
+      const total = list.reduce((n, x) => n + num(x.value) + num(x.interest), 0) + (includeExpenses ? expenses.reduce((n, x) => n + num(x.value), 0) : 0); out.push(wblank(30)); out.push(amountRow("Summa skulder", total, { bold: true })); return out;
+    }
+    function summaryDocument(d) { const sum = (arr, filter) => arr.filter(filter).reduce((n, x) => n + num(x.value), 0); const debtSum = (arr, filter) => arr.filter(filter).reduce((n, x) => n + num(x.value) + num(x.interest), 0); const dGiftA = sum(assets, x => x.type === "giftorättsgods"), dGiftD = debtSum(debts, x => x.type === "giftorättsgods") + expenses.filter(e => e.type === "giftorättsgods").reduce((n, e) => n + num(e.value), 0), sGiftA = sum(survivorAssets, x => x.type === "giftorättsgods"), sGiftD = debtSum(survivorDebts, x => x.type === "giftorättsgods"); const dGiftNet = dGiftA - dGiftD, sGiftNet = sGiftA - sGiftD, joint = Math.max(0, dGiftNet) + Math.max(0, sGiftNet), half = joint / 2; const dOther = assets.filter(x => x.type !== "giftorättsgods").reduce((n, x) => n + num(x.value), 0) - debts.filter(x => x.type !== "giftorättsgods").reduce((n, x) => n + num(x.value) + num(x.interest), 0); const toDistribute = half + dOther; return [wh2("Sammanställning"), amountRow("Den avlidnas giftorättsgods", dGiftA), amountRow("Den avlidnas giftorättsskuld", -dGiftD), amountRow("Den avlidnas behållning", dGiftNet, { bold: true }), wblank(60), amountRow("Den efterlevande makans/makens giftorättsgods", sGiftA), amountRow("Den efterlevande makans/makens giftorättsskuld", -sGiftD), amountRow("Den efterlevandes behållning", sGiftNet, { bold: true }), wblank(60), amountRow("Boets summa behållning", joint, { bold: true }), wh3("Avräkning av bodelningsandel"), amountRow("Den avlidnes bodelningsandel", half), amountRow("Den efterlevandes bodelningsandel", half), amountRow("Att fördela", toDistribute, { bold: true })]; }
+    function signatureCell(o) { return wcell(new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "................................................................", size: 22 }), new TextRun({ text: fullName(o) || " ", break: 1, size: 22 }), ...(o?.title ? [new TextRun({ text: o.title, break: 1, size: 22 })] : []), ...(o?.address ? [new TextRun({ text: o.address, break: 1, size: 22 })] : []), ...(addressLine(o) ? [new TextRun({ text: addressLine(o), break: 1, size: 22 })] : [])] }), { width: 50 }) }
+    async function generateWordDocument() {
+      try {
+        const d = getData(); const declarant = d.meeting.declarant || fullName(d.partner) || fullName(d.heirs.find(x => (x.types || []).includes("D"))) || "Bouppgivare"; const children = [];
+        children.push(wtitle("Bouppteckning"), wp(`Förrättningsdag ${d.meeting.date || ""}`, { after: 420 }), labelValueTable([["Namn", fullName(d.deceased)], ["Personnummer", d.deceased.personnummer], ["Adress", d.deceased.address], ["", addressLine(d.deceased)], ["Civilstånd", d.deceased.civilStatus], ["Avliden", d.deceased.deathDate]]), wblank(240));
+        children.push(...heirBlock(d, "D", "Dödsbodelägare", "Den avlidnas arvingar enligt lag")); children.push(...heirBlock(d, "U", "", "Den avlidnas universella testamentstagare")); children.push(...heirBlock(d, "E", "Efterarvingar", "Den avlidnas arvingar enligt lag"));
+        children.push(pageBreak()); children.push(...heirBlock(d, "T", "", "Den avlidnas arvingar enligt testamente")); children.push(...heirBlock(d, "L", "Legatarier", "Den avlidnas legatarier"));
+        const docs = shownDocuments(d); if (docs.length) { children.push(wh2("Vid förrättningen uppvisades följande handlingar")); for (const [article, text] of docs) children.push(statementRow(article, text)); }
+        children.push(wh2("Det antecknades")); for (const c of d.clauses) children.push(statementRow("att", String(c).replace(/^att\s+/i, "").replace(/[.]+$/, "") + ",")); const pres = presenceRows(d); if (pres.length) { children.push(wh3("Närvaro vid förrättning"), borderlessTable([[new Paragraph({ children: [new TextRun({ text: "Namn", bold: true, size: 22 })] }), new Paragraph({ children: [new TextRun({ text: "Närvarande", bold: true, size: 22 })] })]], [55, 45])); for (const p of pres) children.push(borderlessTable([[fullName(p), p.presence || (p.called ? "Kallad" : "")]], [55, 45])); }
+        children.push(statementRow("att", `boet uppgavs av ${declarant} samt antecknades och värderades per dödsdagen sålunda:`));
+        children.push(pageBreak(), ...assetsDocument("Den avlidnas tillgångar", assets)); children.push(pageBreak(), ...debtsDocument("Den avlidnas skulder", debts, true));
+        const hasSurvivor = !!fullName(d.partner) || survivorAssets.length || survivorDebts.length; if (hasSurvivor) { children.push(pageBreak(), ...assetsDocument("Den efterlevande makans/makens tillgångar", survivorAssets)); children.push(pageBreak(), ...debtsDocument("Den efterlevande makans/makens skulder", survivorDebts, false), wblank(140), ...summaryDocument(d)); } else { children.push(pageBreak(), ...summaryDocument(d)); }
+        children.push(pageBreak(), wp("Härmed försäkras på heder och samvete", { after: 240 }), statementRow("att", "mina uppgifter till bouppteckningen är riktiga,"), statementRow("att", "inga uppgifter avsiktligt har utelämnats,"), wblank(420), wp("................................................................", { after: 15 }), wp(declarant, { after: 420 }), wp("Att allt blivit riktigt antecknat och tillgångarna efter bästa förstånd värderade,", { after: 0 }), wp("intygar undertecknade gode män.", { after: 340 }), wp(`${d.meeting.location || "Förrättningsort"} dag som ovan`, { after: 360 })); const sig = officials.filter(o => fullName(o) || o.address || o.title); for (let i = 0; i < Math.max(sig.length, 2); i += 2) { children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders, rows: [new TableRow({ children: [signatureCell(sig[i] || {}), signatureCell(sig[i + 1] || {})] })] }), wblank(160)); }
+        const footer = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ children: [PageNumber.CURRENT, "(", PageNumber.TOTAL_PAGES, ")"], size: 20 })] })] });
+        const wordDocument = new Document({ styles: { default: { document: { run: { font: "Calibri", size: 22 }, paragraph: { spacing: { after: 80, line: 276 } } } } }, sections: [{ properties: { page: { margin: { top: 850, right: 567, bottom: 850, left: 1701 } } }, footers: { default: footer }, children }] }); generatedWordBlob = await Packer.toBlob(wordDocument); $("wordPreview").innerHTML = ""; await renderAsync(generatedWordBlob, $("wordPreview"), null, { inWrapper: true, breakPages: true, renderHeaders: true, renderFooters: true }); $("downloadWordButton").disabled = false; $("wordStatus").textContent = "Dokumentet är genererat i samma struktur som den angivna bouppteckningsmallen."; openPage("word");
+      } catch (e) { console.error(e); $("wordStatus").textContent = "Kunde inte generera dokumentet: " + e.message; }
+    }
+    function downloadWordDocument() { if (!generatedWordBlob) return; const d = getData(), name = [d.deceased.firstName, d.deceased.lastName].filter(Boolean).join("_").replace(/[^a-zA-Z0-9åäöÅÄÖ_-]/g, "_") || "bouppteckning"; const u = URL.createObjectURL(generatedWordBlob), a = document.createElement("a"); a.href = u; a.download = `Bouppteckning_${name}.docx`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u) }
+
+    function loadSession() { const raw = sessionStorage.getItem("bouppteckningDraft"); if (!raw) return; try { const d = JSON.parse(raw); const map = { personnummer: d.deceased?.personnummer, deathDate: d.deceased?.deathDate, birthYear: d.deceased?.birthYear, firstName: d.deceased?.firstName, lastName: d.deceased?.lastName, address: d.deceased?.address, postalCode: d.deceased?.postalCode, city: d.deceased?.city, country: d.deceased?.country, domicile: d.deceased?.domicile, citizenship: d.deceased?.citizenship, civilStatus: d.deceased?.civilStatus, marriageDate: d.deceased?.marriageDate, partnerPersonnummer: d.partner?.personnummer, partnerFirstName: d.partner?.firstName, partnerLastName: d.partner?.lastName, partnerAddress: d.partner?.address, partnerPostalCode: d.partner?.postalCode, partnerCity: d.partner?.city, partnerCountry: d.partner?.country, meetingLocation: d.meeting?.location, meetingDate: d.meeting?.date, caseNumber: d.meeting?.caseNumber, estateDeclarant: d.meeting?.declarant }; Object.entries(map).forEach(([id, v]) => { if ($(id) && v != null) $(id).value = v }); heirs = d.heirs || []; officials = d.officials?.length ? d.officials : officials; assets = d.assets || []; debts = d.debts || []; survivorAssets = d.survivorAssets || []; survivorDebts = d.survivorDebts || []; undivided = d.undivided || []; customDocs = d.documents?.custom || []; customClauses = (d.clauses || []).filter(x => !clauseDefs.includes(x)).map(text => ({ enabled: true, text })); renderHeirs(); renderOfficials(); renderCustomDocs(); renderCustomClauses(); renderAllFinancial(); } catch (e) { console.warn("Kunde inte läsa sessionsutkast", e) } }
+    Object.assign(window, { openPage, navigateTree, newCase, saveSession, clearSession, openHeirModal, closeHeirModal, saveHeirFromModal, selectHeir, editHeir, editSelectedHeir, deleteSelectedHeir, addOfficial, removeOfficial, setOfficialName, addCustomDoc, renderCustomDocs, addCustomClause, renderCustomClauses, addAssetRow, addDebtRow, addSurvivorAssetRow, addSurvivorDebtRow, addUndividedRow, recalculate, renderAllFinancial, generateWordDocument, downloadWordDocument, num, assets, debts, survivorAssets, survivorDebts, undivided, officials, customDocs, customClauses, expenses });
+
+    renderTree(); renderHeirs(); renderOfficials(); renderClauses(); renderCustomDocs(); renderAllFinancial(); loadSession(); openPage("person");
+  </script>
+</body>
+
+</html>

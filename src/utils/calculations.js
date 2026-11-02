@@ -1,4 +1,5 @@
 import { num } from './format.js';
+<<<<<<< HEAD
 import { hasSurvivingSpouse } from './relationships.js';
 
 const PROPERTY_TYPES = [
@@ -218,6 +219,53 @@ export class EstateCalculator {
       survivorShare,
       distribute,
       hasSpouse,
+=======
+export class EstateCalculator {
+  constructor(data) { this.data = data; }
+  assetTotal(arr) { return arr.reduce((s, a) => s + num(a.value), 0); }
+  debtTotal(arr) { return arr.reduce((s, a) => s + num(a.value) + num(a.interest), 0); }
+  summary() {
+    const d = this.data;
+    const types = [
+      'giftorättsgods', 
+      'enskild eg. ä-förord', 
+      'enskild eg. gåva m.m.'
+    ];
+    const group = (as, ds, type) => {
+      const assets = this.assetTotal(as.filter(x => x.type === type));
+      const debts = this.debtTotal(ds.filter(x => x.type === type));
+      return { 
+        type, 
+        assets, 
+        debts, 
+        net: assets - debts 
+      };
+    };
+    const deceased = types.map(type => group(d.assets, d.debts, type));
+    const survivor = types.map(type => group(d.survivorAssets, d.survivorDebts, type));
+    const expGift = this.assetTotal(d.expenses.filter(e => e.type === 'giftorättsgods'));
+    deceased[0].debts += expGift;
+    deceased[0].net -= expGift;
+    const sum = rows => rows.reduce((s, r) => ({ 
+      assets: s.assets + r.assets, 
+      debts: s.debts + r.debts, 
+      net: s.net + r.net 
+    }), { 
+      assets: 0, 
+      debts: 0, 
+      net: 0 
+    });
+    const joint = Math.max(0, deceased[0].net) + Math.max(0, survivor[0].net);
+    return { 
+      deceased, 
+      survivor, 
+      deceasedTotal: sum(deceased), 
+      survivorTotal: sum(survivor), 
+      joint, 
+      deceasedShare: joint / 2, 
+      survivorShare: joint / 2, 
+      distribute: joint / 2 + deceased.slice(1).reduce((s, row) => s + row.net, 0) 
+>>>>>>> 7e794b9d2a2ddf3ad1a206a45ff016911fee9628
     };
   }
 }

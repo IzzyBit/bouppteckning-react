@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from 'react';
 
 import { useCase } from '../../context/CaseContext.jsx';
@@ -396,4 +397,54 @@ export default function MeetingPage() {
             </Section>
         </Page>
     );
+=======
+import { useCase } from '../../context/CaseContext.jsx';
+import { newOfficial } from '../../models/case.js';
+import { Page, Grid, Field, Section, Button, TableBox, Head, Th, Td, CellInput, Check, InlineList } from '../../components/ui/Controls.jsx';
+export default function MeetingPage() {
+    const { data, set, append, remove } = useCase();
+    const change = (i, key, value) => set(['officials', i, key], value);
+    return <Page title="Uppgifter om förrättning" description="Ange förrättningsort, datum, förrättningsmän och uppvisade handlingar.">
+        <Grid cols={4}><Field label="Förrättningsort" path="meeting.location" />
+            <Field label="Förrättningsdag" type="date" path="meeting.date" />
+            <Field label="Ärendenummer" path="meeting.caseNumber" />
+            <Field label="Bouppgivare" path="meeting.declarant" placeholder="Namn på den som uppger boet" />
+        </Grid>
+        <Section title="Förrättningsmän">
+            <TableBox>
+                <Head>{['Nr', 'Namn', 'Titel / företag', 'Adress', 'Postnr', 'Ort', ''].map(x => <Th key={x}>{x}</Th>)}</Head>
+                <tbody>{data.officials.map((o, i) => <tr key={i}>
+                    <Td>{i + 1}</Td>
+                    <Td><CellInput value={[o.firstName, o.lastName].filter(Boolean).join(' ')} onChange={value => { const parts = value.trim().split(/\s+/); set(['officials', i], { ...o, firstName: parts.shift() || '', lastName: parts.join(' ') }) }} /></Td>
+                    {['title', 'address', 'postalCode', 'city'].map(key => <Td key={key}><CellInput value={o[key]} onChange={v => change(i, key, v)} /></Td>)}
+                    <Td>
+                        <Button variant="danger" onClick={() => remove('officials', i)}>×</Button>
+                    </Td></tr>)}
+                </tbody>
+            </TableBox>
+            <div className="mt-3">
+                <Button onClick={() => append('officials', newOfficial())}>+ Lägg till förrättningsman</Button>
+            </div>
+        </Section>
+        <Section title="Uppvisade handlingar för bouppteckning">
+            <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+                <Check path="documents.prev" label="Bouppteckning efter tidigare avliden" />
+                <Grid>
+                    <Field label="Tidigare avlidens namn" path="documents.prevName" />
+                    <Field label="Upprättad" type="date" path="documents.prevDate" />
+                </Grid>
+                <Check path="documents.will" label="Testamente har uppvisats / åberopats" />
+                <Field label="Testamente – anteckning" path="documents.willNote" />
+                <Check path="documents.power" label="Fullmakt eller annan behörighetshandling har uppvisats" />
+                <Field label="Fullmakt – anteckning" path="documents.powerNote" />
+                <Check path="documents.prenup" label="Äktenskapsförord" />
+                <Grid>
+                    <Field label="Upprättat" type="date" path="documents.prenupDate" />
+                    <Field label="Registrerat" type="date" path="documents.prenupRegistered" />
+                </Grid>
+            </div>
+        </Section>
+        <InlineList title="Egna uppvisade handlingar" path="documents.custom" />
+    </Page>;
+>>>>>>> 7e794b9d2a2ddf3ad1a206a45ff016911fee9628
 }
