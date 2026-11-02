@@ -1,0 +1,36 @@
+ .gitignore                             |   27 [31m-[m
+ .oxlintrc.json                         |    8 [31m-[m
+ README.md                              |    2 [32m+[m[31m-[m
+ index.html                             |    9 [32m+[m
+ package-lock.json                      | 6683 [32m+++[m[31m-----------------------------[m
+ package.json                           |   59 [31m-[m
+ public/favicon.svg                     |    1 [31m-[m
+ public/icons.svg                       |   24 [31m-[m
+ src/App.css                            |    1 [31m-[m
+ src/Electron/main.cjs                  |   33 [31m-[m
+ src/assets/hero.png                    |  Bin [31m13057[m -> [32m0[m bytes
+ src/assets/react.svg                   |    1 [31m-[m
+ src/assets/vite.svg                    |    1 [31m-[m
+ src/bouppteckning_remodeled_v2.html    | 1372 [31m-------[m
+ src/components/layout/Shell.jsx        |   54 [31m-[m
+ src/components/ui/Controls.jsx         |  126 [31m-[m
+ src/config/navigation.js               |   57 [31m-[m
+ src/config/options.js                  |   71 [31m-[m
+ src/context/CaseContext.jsx            |   38 [31m-[m
+ src/features/clauses/ClausesPage.jsx   |   25 [31m-[m
+ src/features/finance/AssetsPage.jsx    |   22 [31m-[m
+ src/features/finance/DebtsPage.jsx     |   16 [31m-[m
+ src/features/finance/FinanceTables.jsx |  107 [31m-[m
+ src/features/finance/SummaryPage.jsx   |   51 [31m-[m
+ src/features/finance/SurvivorPage.jsx  |   13 [31m-[m
+ src/features/heirs/HeirsPage.jsx       |  793 [32m++++[m
+ src/features/meeting/MeetingPage.jsx   |   51 [31m-[m
+ src/features/person/PersonPage.jsx     |   55 [31m-[m
+ src/features/word/WordPage.jsx         |   60 [31m-[m
+ src/models/case.js                     |  178 [31m-[m
+ src/services/storage.js                |   11 [31m-[m
+ src/services/word.js                   |  618 [31m---[m
+ src/utils/calculations.js              |   48 [31m-[m
+ src/utils/format.js                    |    8 [31m-[m
+ vite.config.js                         |    7 [32m+[m[31m-[m
+ 35 files changed, 1378 insertions(+), 9252 deletions(-)
